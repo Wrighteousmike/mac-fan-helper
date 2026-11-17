@@ -17,4 +17,6 @@ Open the app, click **Install helper…** (asks for your password once). If macO
 
 ## Status
 
-Apple Silicon first. Tested on an M4 Mac mini (macOS 27): fan writes through the root helper work. Intel Macs and older SMC key layouts are untested.
+Apple Silicon and Intel (the build is universal). Tested on an M4 Mac mini (macOS 27): fan writes through the root helper work.
+
+**Intel / OpenCore status: written, not yet tested on real hardware.** Intel support covers the Intel temperature keys (`TC…` CPU, `TG…` GPU, `TM…` memory, `TS…`/`TH…` storage), the older `FS! ` fan-mode bitmask for Macs without per-fan `F0Md`, and `fpe2`/`ui16` encodings. OpenCore/Hackintosh machines get their SMC from VirtualSMC, whose sensor and fan keys depend on which plugins (SMCProcessor, SMCSuperIO) you load, so results will vary. Reports with the output of `probe/smcprobe.swift` are very welcome.

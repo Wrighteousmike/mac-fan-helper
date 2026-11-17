@@ -1,6 +1,6 @@
 import Foundation
 
-public let appVersion = "0.2.0"
+public let appVersion = "0.2.1"
 public let helperLabel = "com.local.fanhelper.daemon"
 public var socketPath: String { ProcessInfo.processInfo.environment["FANHELPER_SOCKET"] ?? "/var/run/fanhelper.sock" }
 public var configDir: String {

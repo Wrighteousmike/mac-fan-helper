@@ -22,13 +22,13 @@ public final class SensorReader {
         for key in smc.allKeys() where key.hasPrefix("T") {
             guard let v = smc.value(key), v > 10, v < 130 else { continue }
             groups[.hottest, default: []].append(key)
-            if key.hasPrefix("Tp") || key.hasPrefix("Te") {
+            if key.hasPrefix("Tp") || key.hasPrefix("Te") || key.hasPrefix("TC") {
                 groups[.cpu, default: []].append(key)
                 groups[.cpuAverage, default: []].append(key)
             }
-            else if key.hasPrefix("Tg") { groups[.gpu, default: []].append(key) }
-            else if key.hasPrefix("TH") || key.hasPrefix("TN") { groups[.ssd, default: []].append(key) }
-            else if key.hasPrefix("Tm") { groups[.memory, default: []].append(key) }
+            else if key.hasPrefix("Tg") || key.hasPrefix("TG") { groups[.gpu, default: []].append(key) }
+            else if key.hasPrefix("TH") || key.hasPrefix("TN") || key.hasPrefix("TS") { groups[.ssd, default: []].append(key) }
+            else if key.hasPrefix("Tm") || key.hasPrefix("TM") { groups[.memory, default: []].append(key) }
         }
         sensorKeys = groups
     }

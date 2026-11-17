@@ -79,6 +79,9 @@ public final class SMC {
             let b = Float(v).bitPattern
             bytes = [UInt8(b & 255), UInt8((b >> 8) & 255), UInt8((b >> 16) & 255), UInt8((b >> 24) & 255)]
         case "ui8 ": bytes = [UInt8(max(0, min(255, v)))]
+        case "ui16":
+            let n = Int(max(0, min(65535, v)))
+            bytes = [UInt8((n >> 8) & 255), UInt8(n & 255)]
         case "fpe2":
             let n = Int(max(0, min(16383, v))) << 2
             bytes = [UInt8((n >> 8) & 255), UInt8(n & 255)]
@@ -90,6 +93,20 @@ public final class SMC {
         for (k, x) in bytes.enumerated() { i[48 + k] = x }
         let (o, kr) = call(i)
         return kr != KERN_SUCCESS ? Int32(bitPattern: UInt32(bitPattern: kr)) : Int32(o[40])
+    }
+
+    /// Manual-mode switch for one fan. Apple Silicon and newer Intel Macs have a per-fan `F<i>Md` key;
+    /// older Intel Macs (and some OpenCore/VirtualSMC setups) use the `FS! ` bitmask instead.
+    public func fanManual(_ i: Int) -> Bool {
+        if info("F\(i)Md") != nil { return (value("F\(i)Md") ?? 0) == 1 }
+        return (Int(value("FS! ") ?? 0) >> i) & 1 == 1
+    }
+
+    public func setFanManual(_ i: Int, _ on: Bool) -> Int32 {
+        if info("F\(i)Md") != nil { return write("F\(i)Md", on ? 1 : 0) }
+        var mask = Int(value("FS! ") ?? 0)
+        if on { mask |= 1 << i } else { mask &= ~(1 << i) }
+        return write("FS! ", Double(mask))
     }
 
     public func allKeys() -> [String] {

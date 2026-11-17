@@ -49,8 +49,8 @@ final class Controller {
 
     /// Give every fan back to macOS.
     private func handBack() {
-        for i in 0..<smc.fanCount where (smc.value(fanKey(i, "Md")) ?? 0) != 0 {
-            let r = smc.write(fanKey(i, "Md"), 0)
+        for i in 0..<smc.fanCount where smc.fanManual(i) {
+            let r = smc.setFanManual(i, false)
             if r != 0 { print("handBack fan \(i): write failed \(r)") }
         }
     }
@@ -113,13 +113,13 @@ final class Controller {
             for i in 0..<smc.fanCount {
                 guard let fmin = smc.value(fanKey(i, "Mn")), let fmax = smc.value(fanKey(i, "Mx")), fmax > fmin else { continue }
                 let target = min(max(fmin + (fmax - fmin) * p / 100, fmin), fmax)
-                if (smc.value(fanKey(i, "Md")) ?? 0) != 1 {
-                    let r = smc.write(fanKey(i, "Md"), 1)
+                if !smc.fanManual(i) {
+                    let r = smc.setFanManual(i, true)
                     if r != 0 { error = "macOS refused manual fan mode (code \(r))"; continue }
                 }
                 let r = smc.write(fanKey(i, "Tg"), target)
                 if r != 0 { error = "macOS refused the fan speed write (code \(r))"; continue }
-                if (smc.value(fanKey(i, "Md")) ?? 0) != 1 { error = "macOS switched the fan back to automatic" }
+                if !smc.fanManual(i) { error = "macOS switched the fan back to automatic" }
             }
             controlling = error == nil
         }
